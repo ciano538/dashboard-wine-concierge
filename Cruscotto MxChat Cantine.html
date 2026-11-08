@@ -1,0 +1,294 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cruscotto MxChat Cantine</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: sintesi in alto (chi ha scritto, numeri chiave), poi griglia a due colonne: grafici dei dati nuovi a sinistra, punti di attenzione dal report a destra. */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --ink: #101820;
+  --ink-2: #4a5662;
+  --ink-3: #6b7783;
+  --line: #dde2e8;
+  --series: #2a78d6;
+  --series-2: #9ec5f4;
+  --series-soft: #e3edf9;
+  --muted-fill: #c4ccd5;
+  --warn: #9a5b00;
+  --warn-bg: #fdf0d8;
+  --crit: #b3261e;
+  --crit-bg: #fbe4e2;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151b; --surface: #171f27; --ink: #eef1f4; --ink-2: #b9c2cc; --ink-3: #93a0ad;
+    --line: #2a3541; --series: #3987e5; --series-2: #2d4f78; --series-soft: #1c2c40; --muted-fill: #3b4754;
+    --warn: #e8b04f; --warn-bg: #3a2c10; --crit: #ff8a80; --crit-bg: #3d1b19;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151b; --surface: #171f27; --ink: #eef1f4; --ink-2: #b9c2cc; --ink-3: #93a0ad;
+  --line: #2a3541; --series: #3987e5; --series-2: #2d4f78; --series-soft: #1c2c40; --muted-fill: #3b4754;
+  --warn: #e8b04f; --warn-bg: #3a2c10; --crit: #ff8a80; --crit-bg: #3d1b19;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body);
+  padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; }
+.page { max-width: 1080px; margin: 0 auto; display: grid; gap: 20px; }
+header h1 { font: 700 clamp(1.7rem, 5vw, 2.4rem)/1.1 var(--display); letter-spacing: -.02em; margin: 0 0 6px; text-wrap: balance; }
+header p { margin: 0; color: var(--ink-2); max-width: 62ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; font-size: 13px; color: var(--ink-3); }
+.meta b { color: var(--ink-2); font-weight: 600; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.kpi .n { font: 700 2.1rem/1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.kpi .l { margin-top: 6px; font-size: 13px; color: var(--ink-2); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: grid; gap: 20px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; min-width: 0; }
+.panel h2 { font: 600 1.05rem/1.25 var(--display); margin: 0 0 4px; }
+.panel .sub { margin: 0 0 16px; font-size: 13px; color: var(--ink-3); }
+.note { margin: 16px 0 0; font-size: 12.5px; color: var(--ink-3); }
+
+/* barre */
+.bars { display: grid; gap: 12px; }
+.bar-row { display: grid; gap: 5px; }
+.bar-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.bar-name { font-weight: 600; }
+.bar-name small { font-weight: 400; color: var(--ink-3); margin-left: 6px; }
+.bar-val { font-variant-numeric: tabular-nums; font-weight: 600; }
+.stack { display: flex; gap: 2px; height: 12px; }
+.stack span { display: block; height: 100%; min-width: 3px; }
+.stack .s1 { background: var(--series); border-radius: 0 4px 4px 0; }
+.stack .s2 { background: var(--series-2); }
+.stack span:first-child { border-radius: 0; }
+.stack span:last-child { border-radius: 0 4px 4px 0; }
+.bar-row:hover .stack { opacity: .85; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); margin-top: 14px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+
+/* chi ha scritto */
+.split { display: flex; gap: 2px; height: 38px; margin: 6px 0 12px; }
+.split div { display: flex; align-items: center; padding-inline: 10px; font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; min-width: 0; overflow: hidden; }
+.split .a { background: var(--series); color: #fff; border-radius: 5px 0 0 5px; flex: 32; }
+.split .b { background: var(--series-2); color: var(--ink); flex: 55; }
+.split .c { background: var(--muted-fill); color: var(--ink); border-radius: 0 5px 5px 0; flex: 17; justify-content: center; padding-inline: 4px; }
+
+/* giorni */
+.days { display: grid; grid-template-columns: repeat(23, minmax(0, 1fr)); gap: 3px; align-items: end; height: 150px; margin-top: 4px; }
+.day { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; position: relative; }
+.day b { display: block; background: var(--series); border-radius: 3px 3px 0 0; min-height: 2px; }
+.day em { position: absolute; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; margin-bottom: 3px; }
+.day:hover b { opacity: .8; }
+.axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-3); margin-top: 6px; border-top: 1px solid var(--line); padding-top: 6px; }
+
+/* richieste di degustazione */
+.leads { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.lead { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; }
+.lead-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 10px; align-items: center; }
+.lead strong { font-weight: 600; }
+.lead span.d { color: var(--ink-2); font-size: 13.5px; }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.pill.crit { background: var(--crit-bg); color: var(--crit); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+
+/* criticita */
+.issues { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; }
+.issues li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 11px 0; border-top: 1px solid var(--line); }
+.issues li:first-child { border-top: 0; padding-top: 0; }
+.issues b { font-weight: 600; }
+.issues p { grid-column: 1 / -1; margin: 0; font-size: 13.5px; color: var(--ink-2); }
+
+/* fatti */
+.facts { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.facts li { display: grid; grid-template-columns: 3.4rem 1fr; gap: 12px; align-items: baseline; }
+.facts .v { font: 700 1.5rem/1 var(--display); font-variant-numeric: tabular-nums; text-align: right; }
+.facts .t { color: var(--ink-2); font-size: 14px; }
+.facts .t b { color: var(--ink); font-weight: 600; }
+
+.todo { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+footer { font-size: 12.5px; color: var(--ink-3); max-width: 80ch; }
+:focus-visible { outline: 3px solid var(--series); outline-offset: 2px; }
+</style>
+
+<div class="page">
+  <header>
+    <h1>Cruscotto MxChat Cantine</h1>
+    <p>Cosa chiedono le persone al chatbot, quali cantine consiglia e dove si perdono le richieste, dal 17 ottobre all'8 novembre 2026.</p>
+    <div class="meta">
+      <span>Fonte: <b>chat-transcripts-2026-11-08.csv</b>, 851 messaggi</span>
+      <span>Cantine attribuite dal nome citato dal bot nella risposta</span>
+    </div>
+  </header>
+
+  <section class="kpis" aria-label="Numeri chiave">
+    <div class="kpi"><div class="n">104</div><div class="l">sessioni di chat</div></div>
+    <div class="kpi"><div class="n">426</div><div class="l">domande scritte</div></div>
+    <div class="kpi"><div class="n">87</div><div class="l">sessioni senza l'utente di prova</div></div>
+    <div class="kpi"><div class="n">32</div><div class="l">sessioni da altri indirizzi di rete</div></div>
+    <div class="kpi"><div class="n">42</div><div class="l">sessioni con 3 o più domande</div></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-chi">
+    <h2 id="h-chi">Chi ha scritto</h2>
+    <p class="sub">55 sessioni arrivano dallo stesso indirizzo di rete, attivo dal primo giorno, che scrive spesso prove ("quante cantine hai nel knowledge"). Probabilmente è uso interno: da confermare.</p>
+    <div class="split" role="img" aria-label="32 sessioni da altri indirizzi, 55 dallo stesso indirizzo più attivo, 17 dell'utente di prova">
+      <div class="a">32</div><div class="b">55</div><div class="c">17</div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--series)"></i>Altri indirizzi (32)</span>
+      <span><i style="background:var(--series-2)"></i>Indirizzo più attivo, probabile uso interno (55)</span>
+      <span><i style="background:var(--muted-fill)"></i>Utente di prova (17)</span>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel" aria-labelledby="h-cantine">
+        <h2 id="h-cantine">Sessioni per cantina</h2>
+        <p class="sub">Sessioni in cui il bot ha nominato la cantina nelle risposte, escluso l'utente di prova.</p>
+        <div class="bars" id="bars"></div>
+        <div class="legend">
+          <span><i style="background:var(--series)"></i>Altri indirizzi</span>
+          <span><i style="background:var(--series-2)"></i>Indirizzo più attivo</span>
+        </div>
+        <p class="note">Una sessione può citare più cantine. Conteggio per nome nel testo, quindi da verificare a mano sui casi dubbi.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="h-giorni">
+        <h2 id="h-giorni">Sessioni al giorno</h2>
+        <p class="sub">Senza l'utente di prova. Il 2 novembre è il giorno più pieno, con 14 sessioni.</p>
+        <div class="days" id="days" role="img" aria-label="Sessioni al giorno dal 17 ottobre all'8 novembre, massimo 14 il 2 novembre"></div>
+        <div class="axis"><span>17 ott</span><span>25 ott</span><span>1 nov</span><span>8 nov</span></div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-temi">
+        <h2 id="h-temi">Cosa chiedono</h2>
+        <p class="sub">Sessioni per argomento, escluso l'utente di prova. Ricerca per parole chiave: una sessione può rientrare in più voci.</p>
+        <div class="bars" id="temi"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-uso">
+        <h2 id="h-uso">Come usano il bot</h2>
+        <ul class="facts">
+          <li><span class="v">21</span><span class="t">sessioni partono da un pulsante o da una domanda suggerita, come "Quali cantine posso visitare?".</span></li>
+          <li><span class="v">27</span><span class="t">sessioni si fermano alla prima domanda.</span></li>
+          <li><span class="v">6</span><span class="t">sessioni non sono in italiano: quattro in tedesco, una in cinese, una in inglese.</span></li>
+          <li><span class="v">17</span><span class="t">risposte del bot contengono formule come "non risulta" o "non ho informazioni".</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel" aria-labelledby="h-leads">
+        <h2 id="h-leads">Richieste di degustazione</h2>
+        <p class="sub">Dal report del 26 ottobre. Nessuna risulta conclusa con una cantina.</p>
+        <ul class="leads">
+          <li class="lead">
+            <div class="lead-top"><strong>Coppia, tour in barca al tramonto</strong><span class="pill crit">Persa</span></div>
+            <span class="d">Lunedì 19 ottobre, Amarone. Bergamini descritto, poi ritirato e dirottato su Valetti senza contatto. Il visitatore ha chiesto che fine avesse fatto il viaggio.</span>
+          </li>
+          <li class="lead">
+            <div class="lead-top"><strong>Gruppo di 7 a Peschiera</strong><span class="pill warn">Non inoltrata</span></div>
+            <span class="d">Tre Colline proposta con messaggio pronto, telefono ed email. Non risulta se sia stato inviato.</span>
+          </li>
+          <li class="lead">
+            <div class="lead-top"><strong>"Voglio degustarlo", Chiaretto Valetti</strong><span class="pill warn">Ferma alla data</span></div>
+            <span class="d">Il bot ha chiesto la data e la conversazione si è interrotta.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="h-issues">
+        <h2 id="h-issues">Errori del chatbot</h2>
+        <p class="sub">Dal report del 26 ottobre. Il conteggio delle cantine nella knowledge è sbagliato anche nelle chat successive.</p>
+        <ul class="issues">
+          <li><b>Cataloghi confusi</b><span class="pill crit">Dati</span><p>Gocce di Sole (Valetti) prima negato, poi confermato.</p></li>
+          <li><b>Cantina sbagliata dietro il vino</b><span class="pill crit">Dati</span><p>Vini che sembrano Zeni proposti con acquisto da Valetti.</p></li>
+          <li><b>Tour in barca promesso e ritirato</b><span class="pill crit">Richieste</span><p>Nessuna conferma né contatto.</p></li>
+          <li><b>Cantine inventate o ritirate</b><span class="pill warn">Dati</span><p>Le Muraglie, Cà Bottura e "50 cantine", poi corretto a 3. Il conteggio torna a cambiare il 31 ottobre e il 1 novembre.</p></li>
+          <li><b>Schede vuote</b><span class="pill warn">Dati</span><p>Monte Casa, Pramonte ed Eremus senza dati tecnici.</p></li>
+          <li><b>Prenotazioni che non partono</b><span class="pill crit">Richieste</span><p>"Sei stato aggiunto alla lista", ma nulla arriva alla cantina.</p></li>
+          <li><b>Riferimento a ChatGPT</b><span class="pill warn">Testo</span><p>Compare nella risposta sul microfono.</p></li>
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="h-todo">
+        <h2 id="h-todo">Da fare per primo</h2>
+        <p class="sub">Le tre azioni indicate nel report.</p>
+        <ol class="todo">
+          <li>Caricare le schede complete di Monte Casa, Pramonte ed Eremus e separare i cataloghi per cantina, con il nome ben visibile.</li>
+          <li>Aggiungere un contatto o un modulo reale per le richieste di degustazione.</li>
+          <li>Decidere se il bot consiglia solo le cantine della knowledge o anche altre trovate sul web, come Casetto e Tre Colline.</li>
+        </ol>
+      </section>
+    </div>
+  </div>
+
+  <footer>Numeri calcolati dal file delle chat dal 17 ottobre all'8 novembre 2026. Le sezioni "Richieste di degustazione", "Errori del chatbot" e "Da fare per primo" vengono dal report del 26 ottobre e non sono ancora riletti sul periodo nuovo.</footer>
+</div>
+
+<script>
+(function () {
+  function bars(rootId, rows, max, stacked) {
+    var root = document.getElementById(rootId);
+    rows.forEach(function (d) {
+      var total = d.a + (d.b || 0);
+      var row = document.createElement("div");
+      row.className = "bar-row";
+      var label = total + (total === 1 ? " sessione" : " sessioni");
+      row.title = d.n + ": " + label + (stacked ? " (" + d.a + " altri indirizzi, " + d.b + " indirizzo più attivo)" : "");
+      var seg = stacked
+        ? (d.a ? '<span class="s1" style="flex:' + d.a + '"></span>' : '') + (d.b ? '<span class="s2" style="flex:' + d.b + '"></span>' : '')
+        : '<span class="s1" style="flex:1"></span>';
+      row.innerHTML =
+        '<div class="bar-top"><span class="bar-name">' + d.n + (d.note ? '<small>' + d.note + '</small>' : '') +
+        '</span><span class="bar-val">' + total + '</span></div>' +
+        '<div class="stack" role="img" aria-label="' + d.n + ', ' + label + '" style="width:' + (total / max * 100) + '%">' + seg + '</div>';
+      root.appendChild(row);
+    });
+  }
+  bars("bars", [
+    { n: "Valetti", note: "Calmasino", a: 10, b: 18 },
+    { n: "Bergamini", note: "Colà di Lazise", a: 9, b: 11 },
+    { n: "Agricola Casetto", note: "Cisano", a: 7, b: 8 },
+    { n: "Tre Colline", note: "Bardolino", a: 5, b: 8 },
+    { n: "Zeni", note: "Bardolino", a: 3, b: 8 },
+    { n: "Costadoro", note: "Bardolino", a: 4, b: 2 },
+    { n: "Lenotti", a: 4, b: 0 },
+    { n: "Masi", a: 1, b: 1 }
+  ], 28, true);
+  bars("temi", [
+    { n: "Degustazione o cantina da visitare", a: 49 },
+    { n: "Abbinamento a un piatto", a: 30 },
+    { n: "Indica dove si trovano", note: "Peschiera, Lazise, Affi...", a: 27 },
+    { n: "Domande sul bot", note: "knowledge, posizione, foto", a: 13 },
+    { n: "Cerca una cantina per nome", a: 9 },
+    { n: "Vini biologici o naturali", a: 2 }
+  ], 49, false);
+
+  var counts = [6,6,2,5,0,2,1,1,0,2,4,0,4,2,2,5,14,8,9,8,1,4,1];
+  var start = new Date(2026, 9, 17), root = document.getElementById("days");
+  var months = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+  counts.forEach(function (c, i) {
+    var dt = new Date(start.getTime()); dt.setDate(start.getDate() + i);
+    var el = document.createElement("div");
+    el.className = "day";
+    el.title = dt.getDate() + " " + months[dt.getMonth()] + ": " + c + (c === 1 ? " sessione" : " sessioni");
+    el.innerHTML = (c === 14 ? '<em style="bottom:88%">14</em>' : '') + '<b style="height:' + (c / 14 * 88) + '%"></b>';
+    el.style.position = "relative";
+    root.appendChild(el);
+  });
+})();
+</script>
+
+</body></html>
